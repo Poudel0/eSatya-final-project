@@ -24,7 +24,7 @@ contract eNRSTest is Test{
 
     function setUp() public{
         DeployeNRS deployer = new DeployeNRS();
-        (enrs,engine,helper) = deployer.run();
+        (enrs,engine,,helper) = deployer.run();
         (ethUSDPriceFeed,btcUSDPriceFeed,weth,,) = helper.activeNetworkConfig();
 
         ERC20Mock(weth).mint(USER,STARTING_ERC20_BALANCE);

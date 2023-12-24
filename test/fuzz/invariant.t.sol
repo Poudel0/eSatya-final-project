@@ -16,6 +16,7 @@ import {HelperConfig} from "../../script/HelperConfig.s.sol";
 import {ERC20Mock} from "@openzeppelin/contracts/mocks/token/ERC20Mock.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {Handler} from "./handler.t.sol";
+import {perp} from "../../src/Perpetual/perpetual.sol";
 
 contract invariantTest is StdInvariant{
     DeployeNRS deployer;
@@ -29,7 +30,7 @@ contract invariantTest is StdInvariant{
 
     function setUp() external{
         deployer = new DeployeNRS();
-        (enrs,engine,helper) = deployer.run();
+        (enrs,engine,,helper) = deployer.run();
 
         (,,weth,wbtc,) = helper.activeNetworkConfig();
 
