@@ -16,16 +16,16 @@ contract DeployeNRS is Script{
         HelperConfig helperConfig = new HelperConfig();
         (address wethPriceFeed, address wbtcPriceFeed, address weth, address wbtc, uint256 deployerKey) = helperConfig.activeNetworkConfig();
 
-        tokenAddresses = [weth,wbtc];
-        priceFeedAddresses = [wethPriceFeed,wbtcPriceFeed];
+        // tokenAddresses = weth;
+        // priceFeedAddresses = wethPriceFeed;
         vm.startBroadcast(deployerKey);
         eNRS enrs = new eNRS();
-        eNRS_Engine engine = new eNRS_Engine(tokenAddresses,priceFeedAddresses,address(enrs));
+        eNRS_Engine engine = new eNRS_Engine(address(enrs),wethPriceFeed);
         
         enrs.transferOwnership(address(engine));
 
         // Deploy Perpetual Contract
-        perp perpetual = new perp(address(enrs),wbtcPriceFeed);
+        perp perpetual = new perp(address(enrs),wethPriceFeed);
         vm.stopBroadcast();
         return(enrs,engine,perpetual,helperConfig);
     }

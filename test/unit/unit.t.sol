@@ -37,7 +37,7 @@ contract eNRSTest is Test{
     modifier depositedCollateralAndMinted{
         vm.startPrank(USER);
         ERC20Mock(weth).approve(address(engine),AMOUNT_COLLATERAL);
-        engine.depositCollateralAndMinteNRS(weth,AMOUNT_COLLATERAL,100);
+        engine.depositCollateralAndMinteNRS{value:0.5 ether}(500);
 
         vm.stopPrank();
 
@@ -47,17 +47,17 @@ contract eNRSTest is Test{
 
     // Constructor Test
 
-    address[] public tokenAddresses;
-    address[] public priceFeedAddresses;
+    // address[] public tokenAddresses;
+    // address[] public priceFeedAddresses;
 
-    function test_revertsIfTokenLengthDOesntMatchPriceFeeds()public{
-        tokenAddresses.push(weth);
-        priceFeedAddresses.push(ethUSDPriceFeed);
-        priceFeedAddresses.push(btcUSDPriceFeed);
+    // function test_revertsIfTokenLengthDOesntMatchPriceFeeds()public{
+    //     tokenAddresses.push(weth);
+    //     priceFeedAddresses.push(ethUSDPriceFeed);
+    //     priceFeedAddresses.push(btcUSDPriceFeed);
 
-        vm.expectRevert(eNRS_Engine.eNRS_Engine_TokenAddressesAndPriceFeedAddressesMismatch.selector);
-        new eNRS_Engine(tokenAddresses,priceFeedAddresses,address(enrs));
-    }
+    //     vm.expectRevert(eNRS_Engine.eNRS_Engine_TokenAddressesAndPriceFeedAddressesMismatch.selector);
+    //     new eNRS_Engine(address(enrs),priceFeedAddresses);
+    // }
 
 
 
@@ -67,17 +67,17 @@ contract eNRSTest is Test{
     function test_getNRSValue( ) public {
     uint256 ethAmount = 15e18;
     uint256  expectedUSD = 30000e18 * 133;
-    uint256 actualUSD = engine.getNRSValue(weth, ethAmount);
+    uint256 actualUSD = engine.getNRSValue( ethAmount);
     assertEq(expectedUSD,actualUSD);
 
 
     }
 
     function test_getTokenAmountFromUSD()public{
-        uint256 usdAmount = 100 ether;
+        uint256 usdAmount = 100 *133 ether;
         uint256 expectedWeth = 0.05 ether;
 
-        uint256 actualWeth = engine.getTokenAmountFromUsd(weth,usdAmount);
+        uint256 actualWeth = engine.getTokenAmountFromNRS(usdAmount);
         assertEq(expectedWeth,actualWeth);
     }
 
@@ -86,10 +86,10 @@ contract eNRSTest is Test{
 
     function test_RevertsIfCOllateralZero() public{
         vm.startPrank(USER);
-        ERC20Mock(weth).approve(address(engine),AMOUNT_COLLATERAL);
+        // ERC20Mock(weth).approve(address(engine),AMOUNT_COLLATERAL);
 
         vm.expectRevert(eNRS_Engine.eNRS_Engine_NeedsMoreThanZero.selector);
-        engine.depositCollateral(weth, 0);
+        engine.depositCollateral();
         vm.stopPrank();
     }
 
