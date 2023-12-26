@@ -1,0 +1,4 @@
+eNRSTest:test_RevertsIfCOllateralZero() (gas: 41322)
+eNRSTest:test_getNRSValue() (gas: 22586)
+eNRSTest:test_getTokenAmountFromUSD() (gas: 22411)
+eNRSTest:test_revertsIfTokenLengthDOesntMatchPriceFeeds() (gas: 180463)

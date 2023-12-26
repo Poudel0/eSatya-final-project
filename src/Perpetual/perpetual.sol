@@ -29,6 +29,15 @@ contract perp {
     error InsufficientCollateral(uint256 required, uint256 available);
     error PositionNotSettled();
     error PositionNotOpen();
+    //  Events
+    event PositionOpened(address indexed account, uint256 size, uint256 collateral);
+    event PositionClosed(address indexed account, uint256 size, uint256 collateral);
+    event PositionIncreased(address indexed account, uint256 size, uint256 collateral);
+    event PositionDecreased(address indexed account, uint256 size, uint256 collateral);
+    event PositionSettled(address indexed account, uint256 size, uint256 collateral);
+    event deposited(address indexed account, uint256 amount);
+    event withdrawn(address indexed account, uint256 amount);
+
 
     // state variables
     IERC20 public asset;
@@ -52,10 +61,12 @@ contract perp {
 
     function deposit(uint256 _amount) external {
         require(asset.transferFrom(msg.sender, address(this), _amount), "Transfer failed");
+        emit deposited(msg.sender, _amount);
     }
 
     function withdraw(uint256 _amount) external {
         require(asset.transfer(msg.sender, _amount), "Transfer failed");
+        emit withdrawn(msg.sender, _amount);
     }
 
     function openPosition(uint256 _size, uint256 _collateral) external {
@@ -63,6 +74,7 @@ contract perp {
         require((_size / _collateral) <= maxUtilizationPercentage, "Exceeds maximum utilization percentage");
         require(asset.transferFrom(msg.sender, address(this), _collateral), "Transfer failed");
         positions[msg.sender] = Position(PositionType.LONG, _size, _collateral, 0, false);
+        emit PositionOpened(msg.sender, _size, _collateral);
     }
 
 
@@ -74,10 +86,12 @@ contract perp {
         require(asset.transferFrom(msg.sender, address(this), _additionalCollateral), "Transfer failed");
         positions[msg.sender].size += _additionalSize;
         positions[msg.sender].collateral += _additionalCollateral;
+        emit PositionIncreased(msg.sender, _additionalSize, _additionalCollateral);
     }
     function increasePositionCollateral(uint256 _additionalCollateral) external {
         require(asset.transferFrom(msg.sender, address(this), _additionalCollateral), "Transfer failed");
         positions[msg.sender].collateral += _additionalCollateral;
+        emit PositionIncreased(msg.sender, 0, _additionalCollateral);
     }
     function closePosition() external {
         Position storage position = positions[msg.sender];
@@ -85,6 +99,7 @@ contract perp {
         require(position.positionType == PositionType.SHORT, "Position not short");
         require(asset.transfer(msg.sender, position.collateral), "Transfer failed");
         delete positions[msg.sender];
+        emit PositionClosed(msg.sender, position.size, position.collateral);
     }
 
     function getPrice() public view returns (uint256) {
@@ -95,6 +110,10 @@ contract perp {
 
     function getCollateralRequirement(uint256 _size) public view returns (uint256) {
         return _size * getPrice() * multiplier;
+    }
+
+    function getTestNumber() public pure returns (uint256) {
+        return 2;
     }
 
 }

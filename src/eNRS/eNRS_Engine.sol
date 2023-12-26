@@ -26,6 +26,8 @@ contract eNRS_Engine is ReentrancyGuard {
 
     event CollateralDeposited(address, address, uint256);
     event CollateralRedeemed(address indexed redeemedFrom,address indexed RedeemedTo , address indexed token,uint256 amount );
+    event minted(address indexed account, uint256 amount);
+    event burned(address indexed account, uint256 amount);
     // State Variables/////////////////////////////
 
     eNRS private immutable enrs;
@@ -130,11 +132,13 @@ contract eNRS_Engine is ReentrancyGuard {
             revert eNRS_Engine_MintFailed();
         }
         return minted;
+        // emit minted(msg.sender,_amountToMint);
     }
 
     function burneNRS(uint256 amount) public moreThanZero(amount){
      _burneNRS(amount,msg.sender,msg.sender);
         _revertIfHealthFactorIsBroken(msg.sender);
+        emit burned(msg.sender,amount);
     }
 
 /**
@@ -171,6 +175,7 @@ contract eNRS_Engine is ReentrancyGuard {
             revert eNRS_Engine_HealthFactorNotImproved();
         }
         _revertIfHealthFactorIsBroken(msg.sender);
+        emit CollateralRedeemed(user,msg.sender,collateralAddress,totalCollateralToReedem);
 
     }
     function getHealthFactor() external view {}
@@ -289,5 +294,9 @@ contract eNRS_Engine is ReentrancyGuard {
     }
     function getAccountInfo(address user) public view returns(uint256,uint256){
         return _getAccountInfo(user);
+    }
+
+    function getTestNumber() external pure returns(uint256){
+        return 1;
     }
 }
