@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: SEE LICENSE IN LICENSE
 pragma solidity 0.8.20;
-import {Test} from "forge-std/Test.sol";
+import {Test,console} from "forge-std/Test.sol";
 import {DeployeNRS} from "../../script/DeployeNRS.s.sol";
 import {eNRS} from "../../src/eNRS/eNRS.sol";
 import {eNRS_Engine} from "../../src/eNRS/eNRS_Engine.sol";
@@ -65,13 +65,18 @@ contract eNRSTest is Test{
 
 
     function test_getNRSValue( ) public {
-    uint256 ethAmount = 15e18;
-    uint256  expectedUSD = 30000e18 * 133;
+    uint256 ethAmount = 1;
+    uint256  expectedNRS = 1*2000*133;
     uint256 actualUSD = engine.getNRSValue( ethAmount);
-    assertEq(expectedUSD,actualUSD);
+    console.log(actualUSD);
+    assertEq(expectedNRS,actualUSD);
 
 
     }
+    // function test_latestRoundData() public{
+    //     console.log(engine.);
+
+    // }
 
     function test_getTokenAmountFromUSD()public{
         uint256 usdAmount = 100 *133 ether;

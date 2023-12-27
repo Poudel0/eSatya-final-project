@@ -75,9 +75,7 @@ contract eNRS_Engine is ReentrancyGuard {
         if(!success) {
             revert("eNRS_Engine_RedeemFailed");
         }
-        emit CollateralRedeemed(_from,_to, amount);
-
-        
+        emit CollateralRedeemed(_from,_to, amount);        
     }
     function redeemCollateralForeNRS( uint256 amountCollateral, uint256 amounteNRStoBurn) public {
         burneNRS(amounteNRStoBurn);
@@ -121,7 +119,7 @@ contract eNRS_Engine is ReentrancyGuard {
 
     function minteNRS(uint256 _amountToMint) public nonReentrant returns (bool) {
         s_eNRSMinted[msg.sender] += _amountToMint;
-        _revertIfHealthFactorIsBroken(msg.sender);
+        _revertIfHealthFactorIsBroken(msg.sender); // @audit 
         bool minted = enrs.mint(msg.sender,_amountToMint);
         if(!minted){
             revert eNRS_Engine_MintFailed();
@@ -153,7 +151,7 @@ contract eNRS_Engine is ReentrancyGuard {
     function getNRSValue( uint256 amount) public view returns (uint256) {
         AggregatorV3Interface priceFeed = AggregatorV3Interface(s_PriceFeed);
         (, int256 price,,,) = priceFeed.latestRoundData();
-        return ((uint256(price) * ADDITIONAL_FEE_PRECISION ) * amount *133) / PRECISION; // Additional Fee Precision * Precision
+        return ((uint256(price) * ADDITIONAL_FEE_PRECISION ) * amount *133) / (PRECISION); // Additional Fee Precision * Precision
     }
 
       function getTokenAmountFromNRS( uint256 USDAmountinWei)public view returns(uint256){
@@ -197,6 +195,10 @@ contract eNRS_Engine is ReentrancyGuard {
         
     }
 
+    function getCollateralBalanceOfUser(address user) public view returns (uint256) {
+        return s_collateralDeposited[user];
+    }
+
     function getAccountCollateralValue(address user) public view returns (uint256 totalCollateralValueInNRS) {
     uint256 amount = s_collateralDeposited[user];
     totalCollateralValueInNRS = getNRSValue( amount);
@@ -207,9 +209,9 @@ contract eNRS_Engine is ReentrancyGuard {
         depositCollateral();
     }
 
-    fallback() external payable {
-        depositCollateral();
-   }
+//     fallback() external payable {
+//         depositCollateral();
+//    }
 
 
 }
