@@ -14,7 +14,7 @@ contract DeployeNRS is Script{
 
     function run() external returns (eNRS, eNRS_Engine,perp,HelperConfig){
         HelperConfig helperConfig = new HelperConfig();
-        (address wethPriceFeed, address wbtcPriceFeed, address weth, address wbtc, uint256 deployerKey) = helperConfig.activeNetworkConfig();
+        (address wethPriceFeed,,,, uint256 deployerKey) = helperConfig.activeNetworkConfig();
 
         // tokenAddresses = weth;
         // priceFeedAddresses = wethPriceFeed;

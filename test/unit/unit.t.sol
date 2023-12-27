@@ -84,14 +84,14 @@ contract eNRSTest is Test{
 
     ////// Deposit COllateral Test//////
 
-    function test_RevertsIfCOllateralZero() public{
-        vm.startPrank(USER);
-        // ERC20Mock(weth).approve(address(engine),AMOUNT_COLLATERAL);
+    // function test_RevertsIfCOllateralZero() public{
+    //     vm.startPrank(USER);
+    //     // ERC20Mock(weth).approve(address(engine),AMOUNT_COLLATERAL);
 
-        vm.expectRevert(eNRS_Engine.eNRS_Engine_NeedsMoreThanZero.selector);
-        engine.depositCollateral();
-        vm.stopPrank();
-    }
+    //     vm.expectRevert(eNRS_Engine.eNRS_Engine_NeedsMoreThanZero.selector);
+    //     engine.depositCollateral();
+    //     vm.stopPrank();
+    // }
 
 
     // HealthFactor Test

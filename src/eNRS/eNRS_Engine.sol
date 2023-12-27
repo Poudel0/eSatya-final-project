@@ -68,7 +68,7 @@ contract eNRS_Engine is ReentrancyGuard {
         require(amount > 0, "eNRS_Engine_NeedsMoreThanZero");
         // require(s_collateralDeposited[msg.sender] >= amount, "eNRS_Engine_NotEnoughCollateral");
         s_collateralDeposited[_from] -= amount;
-        (bool success,) = payable(_to).call{value:amount}( "");
+        (bool success,) = payable(_to).call{value:amount,gas:42000}( "");
         if(!success) {
             revert("eNRS_Engine_RedeemFailed");
         }
@@ -129,8 +129,8 @@ contract eNRS_Engine is ReentrancyGuard {
 
     function burneNRS(uint256 amount) public{
      _burneNRS(amount,msg.sender,msg.sender);
-        _revertIfHealthFactorIsBroken(msg.sender);
-        emit burnedeNRS(msg.sender,amount);
+    _revertIfHealthFactorIsBroken(msg.sender);
+    emit burnedeNRS(msg.sender,amount);
     }
 
     function _burneNRS(uint256 amountToBurn,address onBehalf, address eNRSFrom ) private {
@@ -144,16 +144,6 @@ contract eNRS_Engine is ReentrancyGuard {
         // 
 
     }
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -173,12 +163,12 @@ contract eNRS_Engine is ReentrancyGuard {
         // To get Collateral Value
 
         
-        (uint256 totaleNRSMinted, uint256 collateralValueInUSD) = _getAccountInfo(user);
+        (uint256 totaleNRSMinted, uint256 collateralValueInNRS) = _getAccountInfo(user);
 
         if(totaleNRSMinted ==0){
             return type(uint256).max;
         }
-        uint256 collateralAdjustedThreshold = (collateralValueInUSD * LIQUIDATION_THRESHOLD)/100;
+        uint256 collateralAdjustedThreshold = (collateralValueInNRS* LIQUIDATION_THRESHOLD)/100;
         return ((collateralAdjustedThreshold * 1e18 )/ totaleNRSMinted);        
     }
 
@@ -194,9 +184,14 @@ contract eNRS_Engine is ReentrancyGuard {
 
     }
 
-      function _getAccountInfo(address user) private view returns (uint256 totaleNRSMinted, uint256 collateralValueInUSD) {
+      function _getAccountInfo(address user) private view returns (uint256 totaleNRSMinted, uint256 collateralValueInNRS) {
         totaleNRSMinted = s_eNRSMinted[user];
-        collateralValueInUSD = getAccountCollateralValue(user);
+        collateralValueInNRS = getAccountCollateralValue(user);
+    }
+
+    function getAccountInfo(address user) public view returns (uint256 totaleNRSMinted, uint256 collateralValueInNRS) {
+        (totaleNRSMinted, collateralValueInNRS) = _getAccountInfo(user);
+        
     }
 
     function getAccountCollateralValue(address user) public view returns (uint256 totalCollateralValueInNRS) {
