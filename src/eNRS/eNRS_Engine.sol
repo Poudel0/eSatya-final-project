@@ -48,8 +48,7 @@ contract eNRS_Engine is ReentrancyGuard {
 
     function depositCollateralAndMinteNRS(uint256 amountToMint) external payable nonReentrant {
         depositCollateral();
-        minteNRS(amountToMint);
-        
+        minteNRS(amountToMint);  
     }
 
     function depositCollateral() public payable nonReentrant {
@@ -62,7 +61,7 @@ contract eNRS_Engine is ReentrancyGuard {
 
     function redeemCollateral(uint256 amount) public nonReentrant {
         _redeemCollateral(amount,msg.sender,msg.sender);
-        _revertIfHealthFactorIsBroken(msg.sender);
+        // _revertIfHealthFactorIsBroken(msg.sender);
     }
 
 
@@ -108,7 +107,7 @@ contract eNRS_Engine is ReentrancyGuard {
         if(endingUserHealthFactor<=startingUserHealthFactor){
             revert eNRS_Engine_HealthFactorNotImproved();
         }
-        _revertIfHealthFactorIsBroken(msg.sender);
+        // _revertIfHealthFactorIsBroken(msg.sender);
         emit CollateralRedeemed(user,msg.sender,totalCollateralToReedem);
     }
 
@@ -119,7 +118,7 @@ contract eNRS_Engine is ReentrancyGuard {
 
     function minteNRS(uint256 _amountToMint) public nonReentrant returns (bool) {
         s_eNRSMinted[msg.sender] += _amountToMint;
-        _revertIfHealthFactorIsBroken(msg.sender); // @audit 
+        // _revertIfHealthFactorIsBroken(msg.sender); // @audit 
         bool minted = enrs.mint(msg.sender,_amountToMint);
         if(!minted){
             revert eNRS_Engine_MintFailed();
@@ -130,7 +129,7 @@ contract eNRS_Engine is ReentrancyGuard {
 
     function burneNRS(uint256 amount) public{
      _burneNRS(amount,msg.sender,msg.sender);
-    _revertIfHealthFactorIsBroken(msg.sender);
+    // _revertIfHealthFactorIsBroken(msg.sender);
     emit burnedeNRS(msg.sender,amount);
     }
 
@@ -160,7 +159,7 @@ contract eNRS_Engine is ReentrancyGuard {
         return (USDAmountinWei)*1e18 /(uint256(price)*1e10*133);
         }
 
-    function _healthFactor(address user) private view returns (uint256) {
+    function _healthFactor(address user) public view returns (uint256) {
         // To get Collateral Value
 
         

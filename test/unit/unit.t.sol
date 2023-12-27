@@ -19,6 +19,7 @@ contract eNRSTest is Test{
     address weth;
 
     address public USER = makeAddr("user");
+    
     uint256 public constant AMOUNT_COLLATERAL = 10 ether;
     uint256 public constant STARTING_ERC20_BALANCE = 10 ether;
 
@@ -28,6 +29,7 @@ contract eNRSTest is Test{
         (ethUSDPriceFeed,btcUSDPriceFeed,weth,,) = helper.activeNetworkConfig();
 
         ERC20Mock(weth).mint(USER,STARTING_ERC20_BALANCE);
+        vm.deal(USER,5000);
         
 
     }
@@ -36,8 +38,9 @@ contract eNRSTest is Test{
 
     modifier depositedCollateralAndMinted{
         vm.startPrank(USER);
-        ERC20Mock(weth).approve(address(engine),AMOUNT_COLLATERAL);
-        engine.depositCollateralAndMinteNRS{value:0.5 ether}(500);
+        // ERC20Mock(weth).approve(address(engine),AMOUNT_COLLATERAL);
+        engine.depositCollateral{value:5}();
+        engine.minteNRS(500);
 
         vm.stopPrank();
 
@@ -101,10 +104,13 @@ contract eNRSTest is Test{
 
     // HealthFactor Test
 
-    // function test_HealthFactor () public depositedCollateralAndMinted{
-    //     // uint256 healthfactor = 
+    function test_HealthFactor () public depositedCollateralAndMinted{
+        uint256 expectedHealthFactor = 0;
+        uint256 actualHealthFactor = engine._healthFactor(USER);
+        assertEq(expectedHealthFactor,actualHealthFactor);
+        
 
-    // }
+    }
 
 
 
