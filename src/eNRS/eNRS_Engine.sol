@@ -34,6 +34,8 @@ contract eNRS_Engine is ReentrancyGuard {
     uint256 private constant MIN_HEALTH_FACTOR = 1e18;
     uint256 private constant LIQUIDATION_BONUS=10;//10% BONUS
     uint256 private constant LIQUIDATION_PRECISION = 100;
+    uint256 private constant PRECISION = 1e18;
+    uint256 private constant ADDITIONAL_FEE_PRECISION = 1e10;
 
     address private s_PriceFeed;
     mapping(address user => uint256 amountCollateral) private s_collateralDeposited;
@@ -68,7 +70,8 @@ contract eNRS_Engine is ReentrancyGuard {
         require(amount > 0, "eNRS_Engine_NeedsMoreThanZero");
         // require(s_collateralDeposited[msg.sender] >= amount, "eNRS_Engine_NotEnoughCollateral");
         s_collateralDeposited[_from] -= amount;
-        (bool success,) = payable(_to).call{value:amount,gas:42000}( "");
+        //  payable(_to).transfer(amount);
+        (bool success,) = _to.call{value:amount}("");
         if(!success) {
             revert("eNRS_Engine_RedeemFailed");
         }
@@ -150,7 +153,7 @@ contract eNRS_Engine is ReentrancyGuard {
     function getNRSValue( uint256 amount) public view returns (uint256) {
         AggregatorV3Interface priceFeed = AggregatorV3Interface(s_PriceFeed);
         (, int256 price,,,) = priceFeed.latestRoundData();
-        return ((uint256(price) * 1e10 * 133) * amount) / 1e18; // Additional Fee Precision * Precision
+        return ((uint256(price) * ADDITIONAL_FEE_PRECISION ) * amount *133) / PRECISION; // Additional Fee Precision * Precision
     }
 
       function getTokenAmountFromNRS( uint256 USDAmountinWei)public view returns(uint256){
@@ -168,8 +171,8 @@ contract eNRS_Engine is ReentrancyGuard {
         if(totaleNRSMinted ==0){
             return type(uint256).max;
         }
-        uint256 collateralAdjustedThreshold = (collateralValueInNRS* LIQUIDATION_THRESHOLD)/100;
-        return ((collateralAdjustedThreshold * 1e18 )/ totaleNRSMinted);        
+        uint256 collateralAdjustedThreshold = (collateralValueInNRS* LIQUIDATION_THRESHOLD)/LIQUIDATION_PRECISION;
+        return ((collateralAdjustedThreshold * PRECISION )/ totaleNRSMinted);        
     }
 
     function _revertIfHealthFactorIsBroken(address user) internal view {
@@ -177,7 +180,7 @@ contract eNRS_Engine is ReentrancyGuard {
         // Revert IF they dont have enough
 
         uint256 userHealthFactor = _healthFactor(user);
-        if(userHealthFactor<1){
+        if(userHealthFactor < 1e18){
             revert eNRS_Engine_BreaksHealthFactor(userHealthFactor);
         }
 
